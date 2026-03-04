@@ -27,7 +27,6 @@ public class AuthCommands {
         registerAdminCommand(dispatcher);
     }
 
-    // ==================== /register 命令 ====================
     private static void registerRegisterCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("register")
                 .then(Commands.argument("password", StringArgumentType.word())
@@ -70,7 +69,6 @@ public class AuthCommands {
                                 }))));
     }
 
-    // ==================== /login 命令 ====================
     private static void registerLoginCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("login")
                 .then(Commands.argument("password", StringArgumentType.word())
@@ -112,7 +110,6 @@ public class AuthCommands {
                         })));
     }
 
-    // ==================== /logout 命令 ====================
     private static void registerLogoutCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("logout")
                 .executes(context -> {
@@ -136,7 +133,6 @@ public class AuthCommands {
                 }));
     }
 
-    // ==================== /changepassword 命令 ====================
     private static void registerChangePasswordCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("changepassword")
                 .then(Commands.argument("old", StringArgumentType.word())
@@ -171,7 +167,6 @@ public class AuthCommands {
                                 }))));
     }
 
-    // ==================== /serverofflineauth admin 命令 ====================
     private static void registerAdminCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("serverofflineauth")
                 .then(Commands.literal("admin")
@@ -234,7 +229,6 @@ public class AuthCommands {
                                         })))));
     }
 
-    // ==================== 辅助方法 ====================
     private static void teleportToLastLocation(ServerPlayer player, PlayerData data) {
         if (data.getLastDimension() == null) return;
 
