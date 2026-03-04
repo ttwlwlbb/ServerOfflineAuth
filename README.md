@@ -1,101 +1,101 @@
 # ServerOfflineAuth
-
-## 简介
+[简体中文](README_CN.md)
+## Introduction
 
 ------
 
-为服务器上的离线玩家提供密码验证功能。
+Provides password authentication for offline players on the server.
 
 
 
 
-### 特点
+### Features
 
-- 内置加密数据存储
+- Built-in encrypted data storage
 
-- Json与MySQL支持
+- Json and MySQL support
 
 
 
-### 配置
+### Configuration
 
-首次启动 ServerOfflineAuth 时，它会在 config/ 目录下创建 server_offline_auth-common.toml,内容如下
+When ServerOfflineAuth is first started, it creates the `server_offline_auth-common.toml` file in the `config/` directory with the following content:
 
 ```toml
 
-#Server Offline Auth 配置
+#Server Offline Auth Configuration
 [general]
-    #登录超时时间（秒），0 为禁用
+    #Login timeout (seconds), set to 0 to disable
     #Range: 0 ~ 3600
     loginTimeout = 30
-    #盐值长度（log rounds）。默认 10，范围 4-30。
+    #Salt length (log rounds). Default 10, range 4-30.
     #Range: 4 ~ 30
     passwordHashWorkFactor = 10
-    #玩家数据文件名（仅当存储类型为 json 时有效）
+    #Player data file name (only effective when storage type is json)
     dataFileName = "server_offline_auth_data.json"
-    #玩家加入时是否发送提示
+    #Whether to send a prompt when a player joins
     joinMessageEnabled = true
 
 [storage]
-    #数据存储类型：json 或 mysql
+    #Data storage type: json or mysql
     storageType = "json"
-    #MySQL 主机地址
+    #MySQL host address
     mysqlHost = "localhost"
-    #MySQL 端口
+    #MySQL port
     #Range: 1 ~ 65535
     mysqlPort = 3306
-    #MySQL 数据库名
+    #MySQL database name
     mysqlDatabase = "ServerOfflineAuth"
-    #MySQL 用户名
+    #MySQL username
     mysqlUsername = "root"
-    #MySQL 密码
+    #MySQL password
     mysqlPassword = "password"
-    #MySQL 数据表名
+    #MySQL table name
     mysqlTable = "auth_players"
 
     [storage.migration]
-    	#设置此项以执行数据迁移（如 "mysql" 或 "json"）。迁移成功后此项将自动清空，且 storageType 会被更新。
+    	#Set this to perform data migration (e.g., "mysql" or "json"). After successful migration, this value will be automatically cleared, and storageType will be updated.
         migrateTo = ""
-
+        
 ```
-若数据存储模式为JSON,则会在服务端根目录下创建一个名为 server_offline_auth_data.json 的文件来存储玩家数据。\
-如果数据存储模式为MySQL,则需要确保MySQL服务器已正确配置并运行,并且提供的连接信息正确无误。
+- If the data storage mode is JSON, a file named `server_offline_auth_data.json` will be created in the server root directory to store player data.
+- If the data storage mode is MySQL, you need to ensure that the MySQL server is properly configured and running, and that the provided connection information is correct.
 
-### 玩家命令
+### Player Commands
 
-- `/register <passwd> <passwd>` 注册
-- `/login <passwd>` 登陆
-- `/logout` 登出
- 
-### 管理员命令
+- `/register <passwd> <passwd>` Register
+- `/login <passwd>` Login
+- `/logout` Logout
 
-- `/serverofflineauth admin login <player_ID>` 强制登录
-- `/serverofflineauth admin logout <player_ID>` 强制登出
+### Admin Commands
 
-
-
-## 要求
-
-------
-
-### 服务端要求
-
-本mod 基于Minecraft forge 1.20.1开发, 其他版本有效性未验证。
+- `/serverofflineauth admin login <player_ID>` Force login
+- `/serverofflineauth admin logout <player_ID>` Force logout
 
 
 
-## 注意事项
+## Requirements
 
 ------
 
-**该mod处于早期测试阶段, 更多功能开发中, 请勿将测试版本用于重要场所**
+### Server Requirements
 
-**若在使用中发现bug,请在github中提交issue**
+This mod is developed based on Minecraft Forge 1.20.1; its effectiveness on other versions has not been verified.
 
 
 
-## 贡献者
+## Precautions
 
 ------
 
-### 团队成员 ： ttwlwlbb51522, ChaosException, Archiveorigin
+**This mod is in an early testing stage, with more features under development. Do not use test versions in important environments.**
+
+**If you encounter bugs during use, please submit an issue on GitHub.**
+
+
+
+## Contributors
+
+------
+
+### Team Members: ttwlwlbb51522, ChaosException, Archiveorigin
