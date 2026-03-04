@@ -58,9 +58,8 @@
         migrateTo = ""
 
 ```
-若数据存储模式为JSON,则会在服务端根目录下创建一个名为 server_offline_auth_data.json 的文件来存储玩家数据。
-
-
+若数据存储模式为JSON,则会在服务端根目录下创建一个名为 server_offline_auth_data.json 的文件来存储玩家数据。\
+如果数据存储模式为MySQL,则需要确保MySQL服务器已正确配置并运行,并且提供的连接信息正确无误。
 
 ### 玩家命令
 
