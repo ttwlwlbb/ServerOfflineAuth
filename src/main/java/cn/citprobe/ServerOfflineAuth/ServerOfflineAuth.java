@@ -1,5 +1,6 @@
 package cn.citprobe.ServerOfflineAuth;
 
+import cn.citprobe.ServerOfflineAuth.network.NetworkHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -19,6 +20,7 @@ public class ServerOfflineAuth {
 
     public ServerOfflineAuth() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SERVER_SPEC);
+        NetworkHandler.register();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::setup);
         MinecraftForge.EVENT_BUS.register(this);

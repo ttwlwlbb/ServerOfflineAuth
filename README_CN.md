@@ -7,15 +7,11 @@
 
 为服务器上的离线玩家提供密码验证功能。
 
-
-
-
 ### 特点
 
 - 内置加密数据存储
-
 - Json与MySQL支持
-
+- token验证免密登录
 
 
 ### 配置
@@ -26,37 +22,42 @@
 
 #Server Offline Auth 配置
 [general]
-    #登录超时时间（秒），0 为禁用
-    #Range: 0 ~ 3600
-    loginTimeout = 30
-    #盐值长度（log rounds）。默认 10，范围 4-30。
-    #Range: 4 ~ 30
-    passwordHashWorkFactor = 10
-    #玩家数据文件名（仅当存储类型为 json 时有效）
-    dataFileName = "server_offline_auth_data.json"
-    #玩家加入时是否发送提示
-    joinMessageEnabled = true
+	#登录超时时间（秒），0 为禁用
+	#Range: 0 ~ 3600
+	loginTimeout = 30
+	#盐值长度（log rounds）。默认 10，范围 4-30。
+	#Range: 4 ~ 30
+	passwordHashWorkFactor = 10
+	#玩家数据文件名（仅当存储类型为 json 时有效）
+	dataFileName = "server_offline_auth_data.json"
+	#玩家加入时是否发送提示
+	joinMessageEnabled = true
+	#Token 有效天数（0 表示永不过期）
+	#Range: 0 ~ 3650
+	tokenExpiryDays = 3
 
 [storage]
-    #数据存储类型：json 或 mysql
-    storageType = "json"
-    #MySQL 主机地址
-    mysqlHost = "localhost"
-    #MySQL 端口
-    #Range: 1 ~ 65535
-    mysqlPort = 3306
-    #MySQL 数据库名
-    mysqlDatabase = "ServerOfflineAuth"
-    #MySQL 用户名
-    mysqlUsername = "root"
-    #MySQL 密码
-    mysqlPassword = "password"
-    #MySQL 数据表名
-    mysqlTable = "auth_players"
+	#数据存储类型：json 或 mysql
+	storageType = "json"
+	#MySQL 主机地址
+	mysqlHost = "localhost"
+	#MySQL 端口
+	#Range: 1 ~ 65535
+	mysqlPort = 3306
+	#MySQL 数据库名
+	mysqlDatabase = "ServerOfflineAuth"
+	#MySQL 用户名
+	mysqlUsername = "root"
+	#MySQL 密码
+	mysqlPassword = "password"
+	#MySQL 数据表名
+	mysqlTable = "auth_players"
 
-    [storage.migration]
-    	#设置此项以执行数据迁移（如 "mysql" 或 "json"）。迁移成功后此项将自动清空，且 storageType 会被更新。
-        migrateTo = ""
+[migration]
+	#设置此项以执行数据迁移（如 "mysql" 或 "json"）。迁移成功后此项将自动清空，且 storageType 会被更新。
+	migrateTo = ""
+
+
 
 ```
 - 若数据存储模式为JSON,则会在服务端根目录下创建一个名为`server_offline_auth_data.json`的文件来存储玩家数据。

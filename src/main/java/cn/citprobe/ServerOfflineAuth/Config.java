@@ -17,6 +17,8 @@ public class Config {
         public final ForgeConfigSpec.ConfigValue<String> mysqlPassword;
         public final ForgeConfigSpec.ConfigValue<String> mysqlTable;
         public final ForgeConfigSpec.ConfigValue<String> migrateTo;
+        public final ForgeConfigSpec.IntValue tokenExpiryDays;
+
 
         Server(ForgeConfigSpec.Builder builder) {
             builder.comment("Server Offline Auth 配置").push("general");
@@ -37,6 +39,10 @@ public class Config {
             joinMessageEnabled = builder
                     .comment("玩家加入时是否发送提示")
                     .define("joinMessageEnabled", true);
+
+            tokenExpiryDays = builder
+                    .comment("Token 有效天数（0 表示永不过期）")
+                    .defineInRange("tokenExpiryDays", 3, 0, 3650);
 
             builder.pop().push("storage");
 
@@ -67,6 +73,7 @@ public class Config {
             mysqlTable = builder
                     .comment("MySQL 数据表名")
                     .define("mysqlTable", "auth_players");
+            builder.pop();
 
             builder.push("migration");
             migrateTo = builder

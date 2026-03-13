@@ -16,6 +16,8 @@ public class PlayerData {
     private int gameMode;
     private boolean mayFly;
     private boolean flying;
+    private String loginToken;
+    private long tokenExpiry;
 
     public PlayerData() {}
 
@@ -139,5 +141,21 @@ public class PlayerData {
 
     public void setFlying(boolean flying) {
         this.flying = flying;
+    }
+
+    public String getLoginToken() {
+        return loginToken;
+    }
+
+    public void setLoginToken(String loginToken) {
+        this.loginToken = loginToken;
+    }
+
+    public long getTokenExpiry() {
+        return tokenExpiry;
+    }
+
+    public void setTokenExpiry(long tokenExpiry) {
+        this.tokenExpiry = tokenExpiry;
     }
 }

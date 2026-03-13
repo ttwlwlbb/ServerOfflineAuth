@@ -6,14 +6,11 @@
 
 Provides password authentication for offline players on the server.
 
-
-
-
 ### Features
 
 - Built-in encrypted data storage
-
 - Json and MySQL support
+- Token verification password-free login
 
 
 
@@ -52,10 +49,13 @@ When ServerOfflineAuth is first started, it creates the `server_offline_auth-com
     mysqlPassword = "password"
     #MySQL table name
     mysqlTable = "auth_players"
+    #Token validity days (0 means never expires)
+    #Range: 0 ~ 3650
+    tokenExpiryDays = 3
 
-    [storage.migration]
-    	#Set this to perform data migration (e.g., "mysql" or "json"). After successful migration, this value will be automatically cleared, and storageType will be updated.
-        migrateTo = ""
+[storage.migration]
+    #Set this to perform data migration (e.g., "mysql" or "json"). After successful migration, this value will be automatically cleared, and storageType will be updated.
+    migrateTo = ""
         
 ```
 - If the data storage mode is JSON, a file named `server_offline_auth_data.json` will be created in the server root directory to store player data.

@@ -28,15 +28,19 @@
   "commands.admin.login.already_logged_in": "目标玩家已经登录",
   "commands.admin.login.success": "已强制登录玩家 %s",
   "commands.admin.login.failed": "强制登录失败，请查看服务器日志",
+  "commands.admin.login.not_registered": "目标玩家尚未注册",
 
   "commands.admin.logout.target_not_found": "目标玩家不在线",
   "commands.admin.logout.not_logged_in": "目标玩家尚未登录",
   "commands.admin.logout.success": "已强制登出玩家 %s",
   "commands.admin.logout.failed": "强制登出失败，请查看服务器日志",
 
-  "commands.migrate.invalid_target": "目标存储类型必须是 json 或 mysql",
-  "commands.migrate.success": "数据迁移到 %s 成功！请修改配置文件中的 storageType 并重启服务器以切换存储。",
-  "commands.migrate.failed": "数据迁移失败，请查看服务器日志",
+  "commands.token.not_registered": "你还没有注册",
+  "commands.token.generate.success": "新认证令牌生成成功",
+  "commands.token.generate.failed": "生成令牌失败，请查看服务器日志",
+  "commands.token.clear.success": "认证令牌已清除",
+  "commands.token.clear.failed": "清除令牌失败，请查看服务器日志",
+  "commands.login.token_success": "已通过令牌自动登录",
 
   "chat.cannot_speak": "请先登录！"
 }

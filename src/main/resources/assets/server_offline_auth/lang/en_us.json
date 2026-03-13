@@ -28,15 +28,19 @@
   "commands.admin.login.already_logged_in": "Target player is already logged in",
   "commands.admin.login.success": "Force logged in player %s",
   "commands.admin.login.failed": "Force login failed, please check server logs",
+  "commands.admin.login.not_registered": "Target player is not registered",
 
   "commands.admin.logout.target_not_found": "Target player not online",
   "commands.admin.logout.not_logged_in": "Target player is not logged in",
   "commands.admin.logout.success": "Force logged out player %s",
   "commands.admin.logout.failed": "Force logout failed, please check server logs",
 
-  "commands.migrate.invalid_target": "Target storage type must be 'json' or 'mysql'",
-  "commands.migrate.success": "Data migration to %s successful! Please modify storageType in config and restart server to switch storage.",
-  "commands.migrate.failed": "Data migration failed, please check server logs",
+  "commands.token.not_registered": "You are not registered",
+  "commands.token.generate.success": "New authentication token generated successfully",
+  "commands.token.generate.failed": "Failed to generate token, please check server logs",
+  "commands.token.clear.success": "Authentication token cleared",
+  "commands.token.clear.failed": "Failed to clear token, please check server logs",
+  "commands.login.token_success": "Automatically logged in using token",
 
   "chat.cannot_speak": "Please log in first!"
 }

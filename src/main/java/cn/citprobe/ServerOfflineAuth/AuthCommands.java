@@ -13,8 +13,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import cn.citprobe.ServerOfflineAuth.network.NetworkHandler;
+import cn.citprobe.ServerOfflineAuth.network.TokenSyncPacket;
+
+import java.util.UUID;
 
 public class AuthCommands {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -25,8 +31,50 @@ public class AuthCommands {
         registerLogoutCommand(dispatcher);
         registerChangePasswordCommand(dispatcher);
         registerAdminCommand(dispatcher);
+        registerTokenCommands(dispatcher);
     }
 
+    // ==================== 辅助方法 ====================
+    private static String generateToken() {
+        return UUID.randomUUID().toString().replace("-", "");
+    }
+
+    public static void finishLogin(ServerPlayer player, PlayerData data) {
+        LoginManager.setAuthenticated(player, true);
+        LoginManager.restorePlayerState(player);
+        teleportToLastLocation(player, data);
+
+        String token = generateToken();
+        int expiryDays = Config.SERVER.tokenExpiryDays.get();
+        long expiry = expiryDays == 0 ? 0 : System.currentTimeMillis() + expiryDays * 24 * 60 * 60 * 1000L;
+        data.setLoginToken(token);
+        data.setTokenExpiry(expiry);
+        StorageManager.putPlayerData(player.getUUID(), data);
+        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new TokenSyncPacket(token, expiry));
+    }
+
+    private static void teleportToLastLocation(ServerPlayer player, PlayerData data) {
+        if (data.getLastDimension() == null) return;
+
+        ResourceLocation dimensionLocation = ResourceLocation.tryParse(data.getLastDimension());
+        if (dimensionLocation == null) {
+            LOGGER.warn("无效的维度标识符: {}", data.getLastDimension());
+            return;
+        }
+
+        ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, dimensionLocation);
+        ServerLevel level = player.getServer().getLevel(dimension);
+        if (level != null) {
+            player.teleportTo(level, data.getLastX(), data.getLastY(), data.getLastZ(),
+                    data.getLastYRot(), data.getLastXRot());
+            LOGGER.info("玩家 {} 已传回上次位置", player.getName().getString());
+        } else {
+            LOGGER.warn("无法找到维度: {}", data.getLastDimension());
+        }
+    }
+
+    // ==================== 注册命令 ====================
     private static void registerRegisterCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("register")
                 .then(Commands.argument("password", StringArgumentType.word())
@@ -55,9 +103,7 @@ public class AuthCommands {
                                         PlayerData data = new PlayerData(player.getUUID(), hashed, System.currentTimeMillis(), player.getIpAddress());
                                         data.setPlayerName(player.getName().getString());
                                         StorageManager.putPlayerData(player.getUUID(), data);
-                                        LoginManager.setAuthenticated(player, true);
-                                        LoginManager.restorePlayerState(player);
-                                        teleportToLastLocation(player, data);
+                                        finishLogin(player, data); // 登录并发送 Token
 
                                         context.getSource().sendSuccess(() -> Component.translatable("commands.register.success"), true);
                                         return 1;
@@ -91,10 +137,7 @@ public class AuthCommands {
                                 if (PasswordUtils.checkPassword(pwd, data.getHashedPassword())) {
                                     data.setPlayerName(player.getName().getString());
                                     StorageManager.putPlayerData(player.getUUID(), data);
-
-                                    LoginManager.setAuthenticated(player, true);
-                                    LoginManager.restorePlayerState(player);
-                                    teleportToLastLocation(player, data);
+                                    finishLogin(player, data); // 登录并发送 Token
                                     context.getSource().sendSuccess(() -> Component.translatable("commands.login.success"), true);
                                     return 1;
                                 } else {
@@ -154,6 +197,7 @@ public class AuthCommands {
 
                                         String newHashed = PasswordUtils.hashPassword(newPwd);
                                         data.setHashedPassword(newHashed);
+                                        // 密码更改后，Token 仍然有效，无需重新生成，但可以发送新 Token（可选）
                                         StorageManager.putPlayerData(player.getUUID(), data);
                                         context.getSource().sendSuccess(() -> Component.translatable("commands.changepassword.success"), true);
                                         return 1;
@@ -183,12 +227,13 @@ public class AuthCommands {
                                                     return 0;
                                                 }
                                                 PlayerData data = StorageManager.getPlayerData(target.getUUID());
-                                                if (data != null) {
-                                                    data.setPlayerName(target.getName().getString());
-                                                    StorageManager.putPlayerData(target.getUUID(), data);
+                                                if (data == null) {
+                                                    context.getSource().sendFailure(Component.translatable("commands.admin.login.not_registered"));
+                                                    return 0;
                                                 }
-                                                LoginManager.setAuthenticated(target, true);
-                                                LoginManager.restorePlayerState(target);
+                                                data.setPlayerName(target.getName().getString());
+                                                StorageManager.putPlayerData(target.getUUID(), data);
+                                                finishLogin(target, data); // 强制登录并发送 Token
                                                 context.getSource().sendSuccess(() ->
                                                         Component.translatable("commands.admin.login.success", target.getName().getString()), true);
                                                 return 1;
@@ -225,23 +270,56 @@ public class AuthCommands {
                                         })))));
     }
 
-    private static void teleportToLastLocation(ServerPlayer player, PlayerData data) {
-        if (data.getLastDimension() == null) return;
-
-        ResourceLocation dimensionLocation = ResourceLocation.tryParse(data.getLastDimension());
-        if (dimensionLocation == null) {
-            LOGGER.warn("无效的维度标识符: {}", data.getLastDimension());
-            return;
-        }
-
-        ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, dimensionLocation);
-        ServerLevel level = player.getServer().getLevel(dimension);
-        if (level != null) {
-            player.teleportTo(level, data.getLastX(), data.getLastY(), data.getLastZ(),
-                    data.getLastYRot(), data.getLastXRot());
-            LOGGER.info("玩家 {} 已传回上次位置", player.getName().getString());
-        } else {
-            LOGGER.warn("无法找到维度: {}", data.getLastDimension());
-        }
+    private static void registerTokenCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal("authtoken")
+                .requires(source -> source.getEntity() instanceof ServerPlayer) // 只有玩家可用
+                .then(Commands.literal("generate")
+                        .executes(context -> {
+                            try {
+                                ServerPlayer player = context.getSource().getPlayerOrException();
+                                PlayerData data = StorageManager.getPlayerData(player.getUUID());
+                                if (data == null) {
+                                    context.getSource().sendFailure(Component.translatable("commands.token.not_registered"));
+                                    return 0;
+                                }
+                                String token = generateToken();
+                                int expiryDays = Config.SERVER.tokenExpiryDays.get();
+                                long expiry = expiryDays == 0 ? 0 : System.currentTimeMillis() + expiryDays * 24 * 60 * 60 * 1000L;
+                                data.setLoginToken(token);
+                                data.setTokenExpiry(expiry);
+                                StorageManager.putPlayerData(player.getUUID(), data);
+                                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                                        new TokenSyncPacket(token, expiry));
+                                context.getSource().sendSuccess(() -> Component.translatable("commands.token.generate.success"), true);
+                                return 1;
+                            } catch (Exception e) {
+                                LOGGER.error("生成 Token 命令异常", e);
+                                context.getSource().sendFailure(Component.translatable("commands.token.generate.failed"));
+                                return 0;
+                            }
+                        }))
+                .then(Commands.literal("clear")
+                        .executes(context -> {
+                            try {
+                                ServerPlayer player = context.getSource().getPlayerOrException();
+                                PlayerData data = StorageManager.getPlayerData(player.getUUID());
+                                if (data == null) {
+                                    context.getSource().sendFailure(Component.translatable("commands.token.not_registered"));
+                                    return 0;
+                                }
+                                data.setLoginToken(null);
+                                data.setTokenExpiry(0);
+                                StorageManager.putPlayerData(player.getUUID(), data);
+                                // 通知客户端清除 Token（发送空 Token）
+                                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                                        new TokenSyncPacket("", 0));
+                                context.getSource().sendSuccess(() -> Component.translatable("commands.token.clear.success"), true);
+                                return 1;
+                            } catch (Exception e) {
+                                LOGGER.error("清除 Token 命令异常", e);
+                                context.getSource().sendFailure(Component.translatable("commands.token.clear.failed"));
+                                return 0;
+                            }
+                        })));
     }
 }
